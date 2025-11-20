@@ -1,10 +1,9 @@
-clc,clear;
-global ID tag_length
+# Prevent Octave from thinking that this
+# is a function file:
 
-tag_length = 1200;
-ID=[];
+1;
 
-CylinderTagGenerator(18, 4, 100, 15);
+pkg load image;
 
 function max_number=select(feature_size)
     global judge_usage
@@ -43,7 +42,7 @@ function CylinderTagGenerator(tag_col, feature_size, tag_number, height_width_ra
     end
     tic
     while size(ID,1) < tag_number
-        if toc > 20
+        if toc > 200
             break;
         end
         flag=0;
@@ -213,7 +212,7 @@ function plot_tag(ID, ratio)
         for j=1:size(ID,2)
             background=draw(background,j-1,ID(i,j),ratio);
         end
-        imshow(background)
+        % imshow(background)
         imwrite(background,['./CTag_Generated/cy' num2str(i) '.bmp'])
     end
 end
@@ -240,8 +239,16 @@ function background=draw(background, cnt, ID_now, ratio)
     else
         block_pos_right = min(block_pos_right);
     end
-    background = insertShape(background,'FilledPolygon',[tag_length/ratio * 1.5 * cnt 0; tag_length/ratio * 1.5 * cnt block_pos_left-tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio block_pos_right-tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio 0],'Color','black','Opacity',1,'SmoothEdges', false);
-    background = insertShape(background,'FilledPolygon',[tag_length/ratio * 1.5 * cnt tag_length; tag_length/ratio * 1.5 * cnt block_pos_left + tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio block_pos_right + tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio tag_length],'Color','black','Opacity',1,'SmoothEdges', false);
+    coords1 = [tag_length/ratio * 1.5 * cnt 0; tag_length/ratio * 1.5 * cnt block_pos_left-tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio block_pos_right-tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio 0];
+    x1 = coords1(:,1);
+    y1 = coords1(:,2);
+    mask1 = poly2mask(x1, y1, size(background,1), size(background,2));
+    background(mask1) = 0;
+    coords2 = [tag_length/ratio * 1.5 * cnt tag_length; tag_length/ratio * 1.5 * cnt block_pos_left + tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio block_pos_right + tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio tag_length];
+    x2 = coords2(:,1);
+    y2 = coords2(:,2);
+    mask2 = poly2mask(x2, y2, size(background,1), size(background,2));
+    background(mask2) = 0;
 end
 
 function res=testConflict(Code,feature_size)
@@ -284,3 +291,11 @@ function res=testConflict(Code,feature_size)
     end
     res = 1;
 end
+
+clc,clear;
+global ID tag_length
+
+tag_length = 1200;
+ID=[];
+
+CylinderTagGenerator(12, 2, 41, 15);
