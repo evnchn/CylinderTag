@@ -241,6 +241,6 @@ void CylinderTag::drawAxis(const Mat& img, vector<MarkerInfo> markers, vector<Mo
 		arrowedLine(imgMark, imagePoints[imagePoints.size() - 4], imagePoints[imagePoints.size() - 1], Scalar(0, 0, 255), 10, LINE_AA, 0, 0.2);
 		circle(imgMark, imagePoints[imagePoints.size() - 4], 8, Scalar(247, 235, 235), -1);
 	}
-	imshow("Plot", imgMark);
-	waitKey(1);
+	imwrite("../output.png", imgMark);
+	//waitKey(1);
 }

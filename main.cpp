@@ -15,12 +15,12 @@ void read_from_video(const string& path);
 int main(int argc, char** argv){
 	google::InitGoogleLogging(argv[0]);
 	
-	//read_from_image("../test.bmp");
-	read_from_video("../test.avi"); 
+	read_from_image("../test.bmp");
+	//read_from_video("../test.avi"); 
 
-	waitKey(0);
-	destroyAllWindows();
-	system("Pause");
+	//waitKey(0);
+	//destroyAllWindows();
+	//system("Pause");
 
 	return 0;
 }
@@ -38,6 +38,19 @@ void read_from_image(const string& path){
 
 	marker.detect(img_gray, markers, 5, true, 5);
 	marker.estimatePose(img_gray, markers, marker_model, camera, pose, false);
+	cout << "========== RAW POSE DATA OUTPUT ==========" << endl;
+	cout << "Number of markers detected: " << pose.size() << endl << endl;
+	for (size_t i = 0; i < pose.size(); ++i) {
+		cout << "Marker ID: " << pose[i].markerID << endl;
+		cout << "Rotation Vector (rvec):" << endl;
+		cout << "[" << pose[i].rvec.at<double>(0, 0) << ";" << endl;
+		cout << " " << pose[i].rvec.at<double>(1, 0) << ";" << endl;
+		cout << " " << pose[i].rvec.at<double>(2, 0) << "]" << endl;
+		cout << "Translation Vector (tvec):" << endl;
+		cout << "[" << pose[i].tvec.at<double>(0, 0) << ";" << endl;
+		cout << " " << pose[i].tvec.at<double>(1, 0) << ";" << endl;
+		cout << " " << pose[i].tvec.at<double>(2, 0) << "]" << endl << endl;
+	}
 	marker.drawAxis(img_gray, markers, marker_model, pose, camera, 30);
 }
 
