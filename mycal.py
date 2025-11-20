@@ -50,7 +50,7 @@ for fname in images:
 
         fs = cv.FileStorage('cameraParams_' + fname[:-4] + '.yml', cv.FILE_STORAGE_WRITE)
         fs.write('cameraMatrix', mtx)
-        fs.write('distCoeffs', dist)
+        fs.write('distCoeffs', dist.T)
         fs.release()
 
 
