@@ -594,3 +594,5 @@ __marimo__/
 .streamlit/secrets.toml
 
 venv/
+
+octave-workspace
