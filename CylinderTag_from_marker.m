@@ -13,14 +13,26 @@ function plot_tag(ID, ratio)
     global tag_length
     for i=1:size(ID,1)
         background=ones(tag_length,1.5*tag_length/ratio*size(ID,2));
+        [height, width] = size(background);
+        all_coords = {};
         for j=1:size(ID,2)
-            background=draw(background,j-1,ID(i,j),ratio);
+            [background, coords_now] = draw(background,j-1,ID(i,j),ratio);
+            all_coords = [all_coords, coords_now];
         end
-        imwrite(background,['./CTag_Generated_FromID/cy' num2str(i) '.bmp'])
+        imwrite(background,['./CTag_Generated_FromID/cy' num2str(i-1) '.bmp'])
+        fid = fopen(['./CTag_Generated_FromID/cy' num2str(i-1) '_corners.txt'], 'w');
+        fprintf(fid, '%d %d\n', width, height);
+        for k=1:length(all_coords)
+            coords = all_coords{k};
+            for p=1:4
+                fprintf(fid, '%f %f\n', coords(p,1), coords(p,2));
+            end
+        end
+        fclose(fid);
     end
 end
 
-function background=draw(background, cnt, ID_now, ratio)
+function [background, coords]=draw(background, cnt, ID_now, ratio)
     global tag_length
     decoder=[1.47,0;1.54,0;1.61,0;1.68,0;1.68,1;1.61,1;1.54,1;1.47,1];
     white_ratio=0.2;
@@ -42,16 +54,17 @@ function background=draw(background, cnt, ID_now, ratio)
     else
         block_pos_right = min(block_pos_right);
     end
-    coords1 = [tag_length/ratio * 1.5 * cnt 0; tag_length/ratio * 1.5 * cnt block_pos_left-tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio block_pos_right-tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio 0];
+    coords1 = [tag_length/ratio * 1.5 * cnt 0; tag_length/ratio * 1.5 * cnt + tag_length/ratio 0; tag_length/ratio * 1.5 * cnt + tag_length/ratio block_pos_right-tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt block_pos_left-tag_length*white_ratio/2];
     x1 = coords1(:,1);
     y1 = coords1(:,2);
     mask1 = poly2mask(x1, y1, size(background,1), size(background,2));
     background(mask1) = 0;
-    coords2 = [tag_length/ratio * 1.5 * cnt tag_length; tag_length/ratio * 1.5 * cnt block_pos_left + tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio block_pos_right + tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio tag_length];
+    coords2 = [tag_length/ratio * 1.5 * cnt + tag_length/ratio tag_length; tag_length/ratio * 1.5 * cnt tag_length; tag_length/ratio * 1.5 * cnt block_pos_left + tag_length*white_ratio/2; tag_length/ratio * 1.5 * cnt + tag_length/ratio block_pos_right + tag_length*white_ratio/2];
     x2 = coords2(:,1);
     y2 = coords2(:,2);
     mask2 = poly2mask(x2, y2, size(background,1), size(background,2));
     background(mask2) = 0;
+    coords = {coords1, coords2};
 end
 
 % Create directory if it doesn't exist
