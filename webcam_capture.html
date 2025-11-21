@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Capture</title>
+</head>
+<body>
+    <h1>Webcam Capture at 1920x1080</h1>
+    <video id="video" width="1920" height="1080" autoplay></video>
+    <br>
+    <button id="capture">Take Photo</button>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('capture');
+
+        // Set canvas size
+        canvas.width = 1920;
+        canvas.height = 1080;
+
+        // Get user media
+        navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            }
+        })
+        .then(stream => {
+            video.srcObject = stream;
+        })
+        .catch(err => {
+            console.error('Error accessing webcam: ', err);
+        });
+
+        // Capture photo
+        captureButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, 1920, 1080);
+            const dataURL = canvas.toDataURL('image/png');
+
+            // Create download link
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = 'photo.png';
+            link.click();
+        });
+    </script>
+</body>
+</html>
