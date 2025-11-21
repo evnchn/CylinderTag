@@ -66,7 +66,7 @@ void CylinderTag::check_dictionary(const Mat1i& input_state)
 
 void CylinderTag::detect(const Mat& img, vector<MarkerInfo>& markers_info, int adaptiveThresh, const bool cornerSubPix, int cornerSubPixDist){
 	// Display
-    Mat imgMark(img.rows, img.cols, CV_32FC3);
+    Mat imgMark(img.rows, img.cols, CV_8UC3);
     cvtColor(img, imgMark, COLOR_GRAY2RGB);
 
 	//Refresh
@@ -208,17 +208,19 @@ void CylinderTag::estimatePose(const Mat& img, vector<MarkerInfo> markers, vecto
 	}), pose.end());
 }
 
-void CylinderTag::drawAxis(const Mat& img, vector<MarkerInfo> markers, vector<ModelInfo> reconstruct_model, vector<PoseInfo>& pose, CamInfo camera, int axisLength = 5){
+void CylinderTag::drawAxis(const Mat& img, vector<MarkerInfo> markers, vector<ModelInfo> reconstruct_model, vector<PoseInfo>& pose, CamInfo camera, int axisLength, const string& output_path){
 	// Display
-	Mat imgMark(img.rows, img.cols, CV_32FC3);
+	Mat imgMark(img.rows, img.cols, CV_8UC3);
 	cvtColor(img, imgMark, COLOR_GRAY2RGB);
 
 	vector<Point2f> imagePoints, image_points;
 	vector<Point3f> model_points;
+	cout << "Starting drawAxis with " << pose.size() << " poses." << endl;
 	for (int i = 0; i < pose.size(); i++) {
 		model_points.clear();
 		image_points.clear();
 		int ID = pose[i].markerID;
+		cout << "Processing marker ID: " << ID << " with " << markers[i].cornerLists.size() << " features." << endl;
 		for (int j = 0; j < markers[i].cornerLists.size(); j++) {
 			for (int k = 0; k < 8; k++) {
 				model_points.push_back(reconstruct_model[ID].corners[markers[i].featurePos[j] * 8 + k]);
@@ -229,18 +231,23 @@ void CylinderTag::drawAxis(const Mat& img, vector<MarkerInfo> markers, vector<Mo
 		model_points.push_back(reconstruct_model[ID].base + reconstruct_model[ID].axis * axisLength);
 		model_points.push_back(reconstruct_model[ID].base + Point3f(0.0372, 0.0372, 0.9986) * axisLength);
 		model_points.push_back(reconstruct_model[ID].base + Point3f(0.9980, -0.0520, -0.0353) * axisLength);
+		cout << "Added " << model_points.size() << " model points for projection." << endl;
 					
 		imagePoints.clear();
 		projectPoints(model_points, pose[i].rvec, pose[i].tvec, camera.Intrinsic, camera.distCoeffs, imagePoints);
+		cout << "Projected to " << imagePoints.size() << " image points." << endl;
 		for (int i = 0; i < imagePoints.size() - 5; i++) {
 			circle(imgMark, imagePoints[i], 5, Scalar(255, 234, 32), -1);
 		}
+		cout << "Drew " << (imagePoints.size() - 5) << " corner circles." << endl;
 
 		arrowedLine(imgMark, imagePoints[imagePoints.size() - 4], imagePoints[imagePoints.size() - 3], Scalar(255, 0, 0), 10, LINE_AA, 0, 0.2);
 		arrowedLine(imgMark, imagePoints[imagePoints.size() - 4], imagePoints[imagePoints.size() - 2], Scalar(0, 255, 0), 10, LINE_AA, 0, 0.2);
 		arrowedLine(imgMark, imagePoints[imagePoints.size() - 4], imagePoints[imagePoints.size() - 1], Scalar(0, 0, 255), 10, LINE_AA, 0, 0.2);
 		circle(imgMark, imagePoints[imagePoints.size() - 4], 8, Scalar(247, 235, 235), -1);
+		cout << "Drew axis arrows and base circle." << endl;
 	}
-	imwrite("../output.png", imgMark);
+	imwrite(output_path, imgMark);
+	cout << "Saved output image to " << output_path << endl;
 	//waitKey(1);
 }

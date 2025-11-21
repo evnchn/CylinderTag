@@ -30,7 +30,7 @@ public:
     void estimatePose(const Mat& img, vector<MarkerInfo> cornerList, vector<ModelInfo> reconstruct_model, CamInfo camera, vector<PoseInfo>& pose, bool useDensePoseRefine = false);
 
     // Draw axis on markers
-    void drawAxis(const Mat& img, vector<MarkerInfo> markers, vector<ModelInfo> reconstruct_model, vector<PoseInfo>& pose, CamInfo camera, int axisLength);
+    void drawAxis(const Mat& img, vector<MarkerInfo> markers, vector<ModelInfo> reconstruct_model, vector<PoseInfo>& pose, CamInfo camera, int axisLength, const string& output_path);
 
 private:
     corner_detector detector;
